@@ -133,6 +133,10 @@ function findFiles(dir, pattern, options = {}) {
   const { maxAge = null, recursive = false } = options;
   const results = [];
 
+  if (!dir || typeof dir !== 'string') {
+    return results;
+  }
+
   if (!fs.existsSync(dir)) {
     return results;
   }
@@ -144,35 +148,43 @@ function findFiles(dir, pattern, options = {}) {
   const regex = new RegExp(`^${regexPattern}$`);
 
   function searchDir(currentDir) {
+    let entries;
     try {
-      const entries = fs.readdirSync(currentDir, { withFileTypes: true });
+      entries = fs.readdirSync(currentDir, { withFileTypes: true });
+    } catch (err) {
+      if (err.code !== 'EACCES' && err.code !== 'EPERM') {
+        log(`Warning: Could not read directory ${currentDir}: ${err.message}`);
+      }
+      return;
+    }
 
-      for (const entry of entries) {
-        const fullPath = path.join(currentDir, entry.name);
+    for (const entry of entries) {
+      const fullPath = path.join(currentDir, entry.name);
 
-        if (entry.isFile() && regex.test(entry.name)) {
-          if (maxAge !== null) {
-            const stats = fs.statSync(fullPath);
-            const ageInDays = (Date.now() - stats.mtimeMs) / (1000 * 60 * 60 * 24);
-            if (ageInDays <= maxAge) {
-              results.push({ path: fullPath, mtime: stats.mtimeMs });
-            }
-          } else {
-            const stats = fs.statSync(fullPath);
+      let stats;
+      try {
+        stats = fs.statSync(fullPath);
+      } catch (err) {
+        continue;
+      }
+
+      if (entry.isFile() && regex.test(entry.name)) {
+        if (maxAge !== null) {
+          const ageInDays = (Date.now() - stats.mtimeMs) / (1000 * 60 * 60 * 24);
+          if (ageInDays <= maxAge) {
             results.push({ path: fullPath, mtime: stats.mtimeMs });
           }
-        } else if (entry.isDirectory() && recursive) {
-          searchDir(fullPath);
+        } else {
+          results.push({ path: fullPath, mtime: stats.mtimeMs });
         }
+      } else if (entry.isDirectory() && recursive) {
+        searchDir(fullPath);
       }
-    } catch (_err) {
-      // Ignore permission errors
     }
   }
 
   searchDir(dir);
 
-  // Sort by modification time (newest first)
   results.sort((a, b) => b.mtime - a.mtime);
 
   return results;
