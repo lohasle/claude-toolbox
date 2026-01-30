@@ -31,12 +31,31 @@ process.stdin.on('end', () => {
     }
 
     // Get list of modified files
-    const files = execSync('git diff --name-only HEAD', {
-      encoding: 'utf8',
-      stdio: ['pipe', 'pipe', 'pipe']
-    })
-      .split('\n')
-      .filter(f => /\.(ts|tsx|js|jsx)$/.test(f) && fs.existsSync(f));
+    let files = [];
+    try {
+      const output = execSync('git diff --name-only HEAD', {
+        encoding: 'utf8',
+        stdio: ['pipe', 'pipe', 'pipe']
+      });
+      files = output
+        .split('\n')
+        .filter(f => f && /\.(ts|tsx|js|jsx)$/.test(f) && fs.existsSync(f));
+    } catch {
+      // If HEAD doesn't exist (new repo), check staged files instead
+      try {
+        const stagedOutput = execSync('git diff --cached --name-only', {
+          encoding: 'utf8',
+          stdio: ['pipe', 'pipe', 'pipe']
+        });
+        files = stagedOutput
+          .split('\n')
+          .filter(f => f && /\.(ts|tsx|js|jsx)$/.test(f) && fs.existsSync(f));
+      } catch {
+        // No git changes, exit silently
+        console.log(data);
+        process.exit(0);
+      }
+    }
 
     let hasConsole = false;
 
