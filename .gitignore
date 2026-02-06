@@ -1,32 +1,28 @@
-# Environment files
-.env
-.env.local
-.env.*.local
-
-# API keys
-*.key
-*.pem
-secrets.json
-
-# OS files
-.DS_Store
-Thumbs.db
-
-# Editor files
-.idea/
-.vscode/
-*.swp
-*.swo
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+.venv/
 
 # Node
 node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# Personal configs (if any)
-personal/
-private/
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
 
-# Session templates (not committed)
-examples/sessions/*.tmp
+# OS
+.DS_Store
+Thumbs.db
 
-# Local drafts
-marketing/
+# Logs
+*.log
