@@ -1,5 +1,24 @@
 # claude-toolbox 迭代记录
 
+## 迭代 2026-02-26
+
+- **操作**: 深度项目优化
+- **任务**: TASK-2
+
+### 本次改进
+
+1. **package.json 大幅增强**
+   - 添加完整项目元数据 (name, version, description, author, license)
+   - 添加 repository, bugs, homepage 链接
+   - 添加关键词：claude, claude-code, ai, agents, skills, hooks, mcp 等
+   - 添加 type: module 和 engines 字段
+   - 新增 scripts：lint, lint:fix, lint:md, test, format, format:check
+   - 添加 prettier 依赖用于代码格式化
+
+---
+
+# claude-toolbox 迭代记录
+
 ## 迭代 2026-02-06 15:29
 
 - **操作**: OpenClaw Bot 持续迭代
